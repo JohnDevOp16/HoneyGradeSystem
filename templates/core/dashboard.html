@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HoneyGrade - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}"/>
+</head>
+<body>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-icon">&#x1F36F;</span>
+    <div class="logo-name">HoneyGrade</div>
+    <div class="logo-sub">Quality Assessment Platform</div>
+  </div>
+
+  <div class="sidebar-user">
+    <div class="user-avatar" id="userAvatar">?</div>
+    <div>
+      <div class="user-name" id="userName">Loading...</div>
+      <div class="user-role" id="userRole">...</div>
+    </div>
+  </div>
+
+  <div class="nav-assess-hero">
+    <button onclick="showPage('assess'); setActive(null)">
+      <div class="hero-pulse"></div>
+      <span class="hero-icon">&#x1F52C;</span>
+      <span class="hero-label">Assess Honey</span>
+      <span class="hero-sub">Tap to start analysis</span>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <button class="nav-item active" id="nav-dashboard"
+            onclick="showPage('dashboard'); setActive('dashboard')">
+      <span class="nav-icon">&#x1F3E0;</span> Dashboard
+    </button>
+    <button class="nav-item" id="nav-history"
+            onclick="showPage('history'); setActive('history'); loadHistory()">
+      <span class="nav-icon">&#x1F4CB;</span> History
+      <span class="nav-badge" id="historyBadge">0</span>
+    </button>
+    <button class="nav-item" id="nav-qr"
+            onclick="showPage('qr'); setActive('qr')">
+      <span class="nav-icon">&#x1F4F2;</span> QR Certificates
+    </button>
+    <div class="nav-label">Analysis</div>
+    <button class="nav-item" id="nav-parameters"
+            onclick="showPage('parameters'); setActive('parameters')">
+      <span class="nav-icon">&#x1F4CA;</span> RGB Parameters
+    </button>
+    <button class="nav-item" id="nav-reports"
+            onclick="showPage('reports'); setActive('reports')">
+      <span class="nav-icon">&#x1F4C8;</span> Reports
+    </button>
+    <div class="nav-label">Account</div>
+    <button class="nav-item" id="nav-profile"
+            onclick="showPage('profile'); setActive('profile'); loadProfile()">
+      <span class="nav-icon">&#x1F464;</span> Profile
+    </button>
+    <button class="nav-item" id="nav-settings"
+            onclick="showPage('settings'); setActive('settings')">
+      <span class="nav-icon">&#x2699;&#xFE0F;</span> Settings
+    </button>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <button class="nav-item" onclick="logout()"
+            style="color:rgba(253,211,77,0.5);">
+      <span class="nav-icon">&#x1F6AA;</span> Logout
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="hamburger" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-title" id="topbarTitle">Welcome back &#x1F41D;</div>
+    </div>
+    <div class="topbar-actions">
+      <div class="date-chip" id="datechip"></div>
+      <button class="topbar-btn">&#x1F514;</button>
+      <button class="topbar-btn" onclick="logout()">&#x1F6AA;</button>
+    </div>
+  </header>
+
+  <!-- DASHBOARD PAGE -->
+  <section class="page active" id="page-dashboard">
+    <div class="dash-assess-hero" onclick="showPage('assess'); setActive(null)">
+      <div class="dash-assess-content">
+        <div class="dash-assess-eyebrow">&#x1F41D; Core Feature &middot; RGB Colour Analysis</div>
+        <div class="dash-assess-title">Assess Your<br/>Honey Quality</div>
+        <div class="dash-assess-desc">
+          Upload a photo or take one with your camera. The system analyses
+          RGB colour ratios and classifies your honey. No AI &mdash; pure science.
+        </div>
+        <div class="dash-assess-actions">
+          <button class="btn-hero-primary"
+                  onclick="event.stopPropagation(); showPage('assess'); setActive(null)">
+            Upload Image
+          </button>
+          <button class="btn-hero-outline"
+                  onclick="event.stopPropagation(); showPage('assess'); setActive(null)">
+            Open Camera
+          </button>
+        </div>
+      </div>
+      <div class="dash-assess-badges">
+        <div class="assess-stat-pill">
+          <div class="pill-num" id="statTotal">0</div>
+          <div class="pill-label">Total Tests</div>
+        </div>
+        <div class="assess-stat-pill">
+          <div class="pill-num" id="statPass">0%</div>
+          <div class="pill-label">Pass Rate</div>
+        </div>
+        <div class="assess-stat-pill">
+          <div class="pill-num">~3s</div>
+          <div class="pill-label">Per Analysis</div>
+        </div>
+      </div>
+    </div>
+
+    <h1 class="section-title">Dashboard Overview</h1>
+    <p class="section-sub">Monitor your honey assessments and quality metrics.</p>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Assessments</div>
+        <div class="stat-value" id="cardTotal">0</div>
+        <div class="stat-change">All time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Quality Passed</div>
+        <div class="stat-value" id="cardQuality">0</div>
+        <div class="stat-change" id="cardPassRate">0% pass rate</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Intermediate</div>
+        <div class="stat-value" id="cardIntermediate">0</div>
+        <div class="stat-change neutral">Moderate quality</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Poor Quality</div>
+        <div class="stat-value" id="cardPoor">0</div>
+        <div class="stat-change down">Needs attention</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">&#x1F550; Recent Assessments</div>
+        <div id="recentList">
+          <div style="text-align:center; color:var(--text-light);
+               padding:20px; font-size:0.85rem;">Loading...</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">&#x26A1; Quick Assess</div>
+        <div class="upload-zone" onclick="document.getElementById('quickFile').click()">
+          <span class="upload-icon">&#x1F4C2;</span>
+          <div class="upload-title">Drop honey image here</div>
+          <div class="upload-sub">Click to browse or drag and drop</div>
+          <input type="file" id="quickFile" accept="image/*"
+                 style="display:none" onchange="quickAssess(event)"/>
+        </div>
+        <div id="quickResult" style="display:none; margin-top:14px; padding:14px;
+             background:var(--amber-pale); border-radius:12px;
+             border:1px solid var(--glass-border);">
+          <div style="font-size:0.78rem; color:var(--text-light); margin-bottom:6px;">
+            Quick Result
+          </div>
+          <div id="quickBadge"></div>
+          <div id="quickDesc" style="font-size:0.8rem; color:var(--text-mid);
+               margin-top:8px; font-style:italic; line-height:1.5;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ASSESS PAGE -->
+  <section class="page" id="page-assess">
+    <h1 class="section-title">Honey Assessment</h1>
+    <p class="section-sub">Upload or capture a honey image to begin RGB quality analysis.</p>
+    <div class="steps">
+      <div class="step active" id="step1"><div class="step-num">1</div> Upload Image</div>
+      <div class="step-line"></div>
+      <div class="step" id="step2"><div class="step-num">2</div> RGB Analysis</div>
+      <div class="step-line"></div>
+      <div class="step" id="step3"><div class="step-num">3</div> Get Result</div>
+      <div class="step-line"></div>
+      <div class="step" id="step4"><div class="step-num">4</div> Generate QR</div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">&#x1F4F7; Image Input</div>
+        <div class="upload-zone" id="uploadZone"
+             onclick="document.getElementById('assessFile').click()">
+          <span class="upload-icon" id="uploadIcon">&#x1F4C2;</span>
+          <div class="upload-title" id="uploadTitle">Drop your honey image here</div>
+          <div class="upload-sub" id="uploadSub">PNG, JPG supported</div>
+          <div class="upload-btn-row">
+            <button class="btn btn-primary"
+                    onclick="event.stopPropagation(); document.getElementById('assessFile').click()">
+              Browse File
+            </button>
+            <button class="btn btn-outline" onclick="event.stopPropagation();">
+              Open Camera
+            </button>
+          </div>
+        </div>
+        <input type="file" id="assessFile" accept="image/*"
+               style="display:none" onchange="previewImage(event)"/>
+        <div style="margin-top:16px;">
+          <div class="form-group">
+            <label class="form-label">Sample Label / Batch ID</label>
+            <input type="text" class="form-input" id="sampleLabel" placeholder="e.g. A-2035"/>
+          </div>
+        </div>
+        <button class="btn btn-primary"
+                style="width:100%; justify-content:center; margin-top:14px;"
+                onclick="runAssessment()">
+          &#x1F52C; Analyse Now
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-title">&#x1F3A8; RGB Channel Analysis</div>
+        <div class="rgb-row">
+          <div class="rgb-bar-wrap">
+            <div class="rgb-bar-label">
+              <span style="color:#ef4444">R &mdash; Red Channel</span>
+              <span id="rVal" style="color:#ef4444">--</span>
+            </div>
+            <div class="rgb-bar-track">
+              <div class="rgb-bar-fill" id="rBar"
+                   style="width:0%;background:linear-gradient(90deg,#fca5a5,#ef4444)"></div>
+            </div>
+          </div>
+          <div class="rgb-bar-wrap">
+            <div class="rgb-bar-label">
+              <span style="color:#22c55e">G &mdash; Green Channel</span>
+              <span id="gVal" style="color:#22c55e">--</span>
+            </div>
+            <div class="rgb-bar-track">
+              <div class="rgb-bar-fill" id="gBar"
+                   style="width:0%;background:linear-gradient(90deg,#86efac,#16a34a)"></div>
+            </div>
+          </div>
+          <div class="rgb-bar-wrap">
+            <div class="rgb-bar-label">
+              <span style="color:#3b82f6">B &mdash; Blue Channel</span>
+              <span id="bVal" style="color:#3b82f6">--</span>
+            </div>
+            <div class="rgb-bar-track">
+              <div class="rgb-bar-fill" id="bBar"
+                   style="width:0%;background:linear-gradient(90deg,#93c5fd,#3b82f6)"></div>
+            </div>
+          </div>
+          <div class="rgb-bar-wrap">
+            <div class="rgb-bar-label">
+              <span style="color:var(--amber-deep)">R:G Ratio Score</span>
+              <span id="avgVal" style="color:var(--amber-deep)">--</span>
+            </div>
+            <div class="rgb-bar-track">
+              <div class="rgb-bar-fill" id="avgBar"
+                   style="width:0%;background:linear-gradient(90deg,#fde68a,#d97706)"></div>
+            </div>
+          </div>
+        </div>
+        <div class="result-panel" id="resultPanel">
+          <div style="display:flex; align-items:flex-start; gap:18px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:180px;">
+              <div style="font-size:0.7rem; color:var(--text-light);
+                   text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px;">
+                Assessment Result
+              </div>
+              <span id="resultBadge" class="badge"></span>
+              <table class="param-table" style="margin-top:12px;">
+                <tr><td>R average</td><td id="resR">--</td></tr>
+                <tr><td>G average</td><td id="resG">--</td></tr>
+                <tr><td>B average</td><td id="resB">--</td></tr>
+                <tr><td>R:G ratio</td><td id="resRG">--</td></tr>
+                <tr><td>Date</td><td id="resDate">--</td></tr>
+              </table>
+            </div>
+            <div class="qr-box">
+              <div style="font-size:0.7rem; color:var(--text-light);
+                   text-transform:uppercase; letter-spacing:0.1em;">QR Certificate</div>
+              <div class="qr-placeholder" id="assessQR">&#x1F4F2;</div>
+              <button class="btn btn-outline" style="font-size:0.75rem;"
+                      onclick="showPage('qr'); setActive('qr')">
+                View QR &rarr;
+              </button>
+            </div>
+          </div>
+          <div class="result-desc" id="resultDesc"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HISTORY PAGE -->
+  <section class="page" id="page-history">
+    <h1 class="section-title">Assessment History</h1>
+    <p class="section-sub">All your past honey quality assessments.</p>
+    <div class="card">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap;">
+        <input type="text" class="form-input" id="historySearch"
+               placeholder="Search by sample ID..." style="flex:1; min-width:180px;"
+               oninput="filterHistory()"/>
+        <select class="form-input" style="width:150px;" id="historyFilter"
+                onchange="filterHistory()">
+          <option value="">All Results</option>
+          <option value="quality">Quality</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="poor">Poor</option>
+        </select>
+        <button class="btn btn-primary" onclick="exportCSV()">Export CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Date</th><th>Sample ID</th><th>R avg</th>
+              <th>G avg</th><th>B avg</th><th>Ratio</th><th>Result</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr><td colspan="7" style="text-align:center; padding:20px;
+                color:var(--text-light);">Loading history...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- QR PAGE -->
+  <section class="page" id="page-qr">
+    <h1 class="section-title">QR Certificates</h1>
+    <p class="section-sub">Generate and download QR codes for assessed honey batches.</p>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">&#x1F9FE; Certificate Details</div>
+        <div id="qrDetailBox" style="color:var(--text-light); font-size:0.85rem; padding:10px 0;">
+          Complete an assessment first to generate a QR certificate.
+        </div>
+      </div>
+      <div class="card" style="display:flex; flex-direction:column;
+           align-items:center; justify-content:center; gap:16px;">
+        <div class="card-title" style="align-self:flex-start;">&#x1F4F2; QR Preview</div>
+        <div class="qr-placeholder" id="qrPreviewBox">&#x1F4F2;</div>
+        <button class="btn btn-outline" onclick="downloadQR()">Download QR</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PARAMETERS PAGE -->
+  <section class="page" id="page-parameters">
+    <h1 class="section-title">RGB Quality Parameters</h1>
+    <p class="section-sub">Reference thresholds used to classify honey quality.</p>
+    <div class="three-col">
+      <div class="card" style="border-top:4px solid var(--quality-good);">
+        <div class="card-title" style="color:var(--quality-good)">Quality Honey</div>
+        <table class="param-table">
+          <tr><td>R average</td><td>&ge; 200</td></tr>
+          <tr><td>G average</td><td>150 &ndash; 200</td></tr>
+          <tr><td>B average</td><td>50 &ndash; 100</td></tr>
+          <tr><td>R:G ratio</td><td>&ge; 1.20</td></tr>
+          <tr><td>R:B ratio</td><td>&ge; 2.00</td></tr>
+        </table>
+        <div style="margin-top:12px; padding:10px; background:rgba(22,163,74,0.07);
+             border-radius:8px; font-size:0.77rem; color:var(--quality-good); line-height:1.5;">
+          Deep golden amber. High R channel dominance. Pure unprocessed honey.
+        </div>
+      </div>
+      <div class="card" style="border-top:4px solid var(--quality-mid);">
+        <div class="card-title" style="color:var(--quality-mid)">Intermediate Honey</div>
+        <table class="param-table">
+          <tr><td>R average</td><td>170 &ndash; 199</td></tr>
+          <tr><td>G average</td><td>140 &ndash; 170</td></tr>
+          <tr><td>B average</td><td>90 &ndash; 130</td></tr>
+          <tr><td>R:G ratio</td><td>0.90 &ndash; 1.19</td></tr>
+          <tr><td>R:B ratio</td><td>1.30 &ndash; 1.99</td></tr>
+        </table>
+        <div style="margin-top:12px; padding:10px; background:rgba(202,138,4,0.07);
+             border-radius:8px; font-size:0.77rem; color:var(--quality-mid); line-height:1.5;">
+          Lighter colour. Possible dilution. Acceptable for local market.
+        </div>
+      </div>
+      <div class="card" style="border-top:4px solid var(--quality-poor);">
+        <div class="card-title" style="color:var(--quality-poor)">Poor Quality</div>
+        <table class="param-table">
+          <tr><td>R average</td><td>&lt; 170</td></tr>
+          <tr><td>G average</td><td>&gt; 170</td></tr>
+          <tr><td>B average</td><td>&gt; 130</td></tr>
+          <tr><td>R:G ratio</td><td>&lt; 0.90</td></tr>
+          <tr><td>R:B ratio</td><td>&lt; 1.30</td></tr>
+        </table>
+        <div style="margin-top:12px; padding:10px; background:rgba(220,38,38,0.07);
+             border-radius:8px; font-size:0.77rem; color:var(--quality-poor); line-height:1.5;">
+          Washed-out tones. Likely adulterated or over-processed.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORTS PAGE -->
+  <section class="page" id="page-reports">
+    <h1 class="section-title">Reports &amp; Analytics</h1>
+    <p class="section-sub">Summary of your honey assessment activities.</p>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">&#x1F4C5; Summary</div>
+        <table class="param-table">
+          <tr><td>Total Assessments</td><td id="rTotal">0</td></tr>
+          <tr><td>Quality Passed</td><td id="rQuality">0</td></tr>
+          <tr><td>Intermediate</td><td id="rIntermediate">0</td></tr>
+          <tr><td>Poor Quality</td><td id="rPoor">0</td></tr>
+          <tr><td>Pass Rate</td><td id="rPassRate">0%</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title">&#x1F4E5; Export Data</div>
+        <p style="font-size:0.83rem; color:var(--text-light); margin-bottom:16px; line-height:1.6;">
+          Download all your assessment records including RGB values and quality results.
+        </p>
+        <button class="btn btn-primary" style="width:100%; justify-content:center;"
+                onclick="exportCSV()">
+          Download CSV Report
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROFILE PAGE -->
+  <section class="page" id="page-profile">
+    <h1 class="section-title">My Profile</h1>
+    <p class="section-sub">Manage your account details.</p>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">&#x1F464; Personal Information</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input type="text" class="form-input" id="pFirstName"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input type="text" class="form-input" id="pLastName"/>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="pEmail"/>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Phone</label>
+            <input type="text" class="form-input" id="pPhone"/>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Region</label>
+            <input type="text" class="form-input" id="pRegion"/>
+          </div>
+        </div>
+        <button class="btn btn-primary"
+                style="width:100%; justify-content:center; margin-top:16px;"
+                onclick="saveProfile()">
+          Save Changes
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-title">&#x1F41D; Account Info</div>
+        <table class="param-table">
+          <tr><td>Username</td><td id="pUsername">--</td></tr>
+          <tr><td>Role</td><td id="pRole">--</td></tr>
+          <tr><td>Member since</td><td id="pSince">--</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS PAGE -->
+  <section class="page" id="page-settings">
+    <h1 class="section-title">Settings</h1>
+    <p class="section-sub">Configure your platform preferences.</p>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">&#x1F514; Notifications</div>
+        <div class="toggle-wrap">
+          <div>
+            <div class="toggle-label">Email Notifications</div>
+            <div class="toggle-sub">Receive results via email</div>
+          </div>
+          <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="toggle-wrap">
+          <div>
+            <div class="toggle-label">SMS Alerts</div>
+            <div class="toggle-sub">SMS for poor quality results</div>
+          </div>
+          <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">&#x2699;&#xFE0F; Preferences</div>
+        <div class="toggle-wrap">
+          <div>
+            <div class="toggle-label">Auto-generate QR</div>
+            <div class="toggle-sub">After every assessment</div>
+          </div>
+          <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+        </div>
+        <div class="toggle-wrap">
+          <div>
+            <div class="toggle-label">Save History</div>
+            <div class="toggle-sub">Store all results in database</div>
+          </div>
+          <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- end main -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="bnav-item active" id="bnav-dashboard"
+            onclick="showPage('dashboard'); setActive('dashboard'); setBnav('dashboard')">
+      <span class="bnav-icon">&#x1F3E0;</span>
+      <span class="bnav-label">Home</span>
+    </button>
+    <button class="bnav-item" id="bnav-history"
+            onclick="showPage('history'); setActive('history'); loadHistory(); setBnav('history')">
+      <span class="bnav-icon">&#x1F4CB;</span>
+      <span class="bnav-label">History</span>
+    </button>
+    <button class="bnav-assess"
+            onclick="showPage('assess'); setActive(null); setBnav('assess')">
+      <div class="bnav-assess-circle">&#x1F52C;</div>
+      <span class="bnav-label" style="color:var(--amber-light);">Assess</span>
+    </button>
+    <button class="bnav-item" id="bnav-qr"
+            onclick="showPage('qr'); setActive('qr'); setBnav('qr')">
+      <span class="bnav-icon">&#x1F4F2;</span>
+      <span class="bnav-label">QR</span>
+    </button>
+    <button class="bnav-item" id="bnav-profile"
+            onclick="showPage('profile'); setActive('profile'); loadProfile(); setBnav('profile')">
+      <span class="bnav-icon">&#x1F464;</span>
+      <span class="bnav-label">Profile</span>
+    </button>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="{% static 'js/dashboard.js' %}"></script>
+</body>
+</html>

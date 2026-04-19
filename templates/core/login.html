@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HoneyGrade - Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --amber-deep:   #B45309;
+      --amber-rich:   #D97706;
+      --amber-warm:   #F59E0B;
+      --amber-light:  #FCD34D;
+      --amber-pale:   #FEF3C7;
+      --amber-glow:   #FFFBEB;
+      --comb-dark:    #78350F;
+      --text-mid:     #44230B;
+      --text-light:   #92400E;
+      --quality-good: #16A34A;
+      --quality-mid:  #CA8A04;
+      --quality-poor: #DC2626;
+      --glass:        rgba(255,251,235,0.6);
+      --glass-border: rgba(217,119,6,0.2);
+    }
+
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--amber-glow);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V16L28 0l28 16v34zm0-92L0 -8v34L28 50l28-24V-8z' fill='none' stroke='%23F59E0B' stroke-width='0.6' opacity='0.22'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .auth-wrapper {
+      width: 100%;
+      max-width: 480px;
+      padding: 30px 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-card {
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 36px 40px;
+      box-shadow: 0 12px 48px rgba(120,53,15,0.15);
+    }
+
+    /* LOGO */
+    .auth-logo { text-align:center; margin-bottom:28px; }
+    .auth-logo-icon {
+      font-size: 2.8rem;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .auth-logo-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--comb-dark);
+    }
+    .auth-logo-sub {
+      font-size: 0.65rem;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      margin-top: 3px;
+    }
+
+    /* TABS */
+    .tab-switcher {
+      display: flex;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      padding: 5px;
+      margin-bottom: 28px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px 0;
+      border: none;
+      background: transparent;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-light);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--amber-deep), var(--amber-rich));
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(180,83,9,0.35);
+    }
+
+    /* FORM PANELS */
+    .form-panel { display: none; }
+    .form-panel.active {
+      display: block;
+      animation: slideUp 0.35s ease;
+    }
+    @keyframes slideUp {
+      from { opacity:0; transform:translateY(14px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .form-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--comb-dark);
+      margin-bottom: 6px;
+    }
+    .form-title em { font-style:italic; color:var(--amber-rich); }
+    .form-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-bottom: 20px;
+    }
+
+    /* FIELDS */
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 14px;
+    }
+    .field-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-light);
+    }
+    .field-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .field-input {
+      width: 100%;
+      padding: 12px 40px 12px 14px;
+      border: 1.5px solid var(--glass-border);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.7);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      color: var(--text-mid);
+      outline: none;
+      transition: border 0.22s, box-shadow 0.22s;
+    }
+    .field-input:focus {
+      border-color: var(--amber-warm);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(245,158,11,0.12);
+    }
+    .field-input::placeholder { color: rgba(120,53,15,0.35); }
+    .field-eye {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--text-light);
+      padding: 4px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* ROLE SELECTOR */
+    .role-label { font-size:0.72rem; font-weight:600;
+      text-transform:uppercase; letter-spacing:0.09em;
+      color:var(--text-light); margin-bottom:8px; }
+    .role-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .role-opt { position: relative; }
+    .role-opt input[type="radio"] {
+      position: absolute; opacity:0; width:0; height:0;
+    }
+    .role-opt label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      padding: 12px 8px;
+      border: 1.5px solid var(--glass-border);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.5);
+      cursor: pointer;
+      transition: all 0.22s;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-light);
+    }
+    .role-opt input:checked + label {
+      border-color: var(--amber-warm);
+      background: rgba(254,243,199,0.9);
+      color: var(--comb-dark);
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+    }
+    .role-icon { font-size: 1.4rem; }
+
+    /* PASSWORD STRENGTH */
+    .strength-bars { display:flex; gap:4px; margin-top:6px; }
+    .strength-bar {
+      flex:1; height:4px; border-radius:4px;
+      background: rgba(120,53,15,0.12);
+      transition: background 0.3s;
+    }
+    .strength-bar.weak   { background: var(--quality-poor); }
+    .strength-bar.medium { background: var(--quality-mid);  }
+    .strength-bar.strong { background: var(--quality-good); }
+    .strength-text {
+      font-size: 0.68rem;
+      margin-top: 4px;
+      color: var(--text-light);
+    }
+
+    /* CHECKBOX */
+    .check-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 18px;
+      cursor: pointer;
+    }
+    .check-wrap input {
+      accent-color: var(--amber-warm);
+      width: 16px; height: 16px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .check-text {
+      font-size: 0.78rem;
+      color: var(--text-light);
+      line-height: 1.5;
+    }
+
+    /* SUBMIT BUTTON */
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--comb-dark), var(--amber-deep), var(--amber-rich));
+      color: #fff;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+      box-shadow: 0 6px 20px rgba(180,83,9,0.4);
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(180,83,9,0.5);
+    }
+
+    /* SWITCH PROMPT */
+    .switch-prompt {
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-light);
+      margin-top: 20px;
+    }
+    .switch-link {
+      color: var(--amber-deep);
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      top: 24px; left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: linear-gradient(135deg, var(--comb-dark), var(--amber-deep));
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 30px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      box-shadow: 0 8px 28px rgba(120,53,15,0.4);
+      z-index: 9999;
+      transition: transform 0.4s cubic-bezier(.34,1.56,.64,1);
+      white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 500px) {
+      .auth-card { padding: 24px 20px; }
+      .field-row { grid-template-columns: 1fr; }
+      .role-selector { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="auth-wrapper">
+  <div class="auth-card">
+
+    <!-- LOGO -->
+    <div class="auth-logo">
+      <span class="auth-logo-icon">&#x1F36F;</span>
+      <div class="auth-logo-name">HoneyGrade</div>
+      <div class="auth-logo-sub">Quality Assessment Platform</div>
+    </div>
+
+    <!-- TAB SWITCHER -->
+    <div class="tab-switcher">
+      <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+      <button class="tab-btn" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+    </div>
+
+    <!-- LOGIN PANEL -->
+    <div class="form-panel active" id="panel-login">
+      <div class="form-title">Welcome <em>back</em></div>
+      <div class="form-subtitle">Sign in to continue your honey assessments.</div>
+
+      <div class="field-group">
+        <label class="field-label">Username</label>
+        <div class="field-wrap">
+          <input type="text" class="field-input" id="login-username" placeholder="Enter your username"/>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Password</label>
+        <div class="field-wrap">
+          <input type="password" class="field-input" id="login-password" placeholder="Enter your password"/>
+          <button class="field-eye" type="button" onclick="togglePwd('login-password', this)">Show</button>
+        </div>
+      </div>
+
+      <button class="btn-submit" type="button" onclick="handleLogin()">
+        Sign In to HoneyGrade
+      </button>
+
+      <div class="switch-prompt">
+        Don't have an account?
+        <span class="switch-link" onclick="switchTab('signup')">Create one free</span>
+      </div>
+    </div>
+
+    <!-- SIGNUP PANEL -->
+    <div class="form-panel" id="panel-signup">
+      <div class="form-title">Join <em>HoneyGrade</em></div>
+      <div class="form-subtitle">Create your account and start assessing honey today.</div>
+
+      <div class="role-label">I am a</div>
+      <div class="role-selector">
+        <div class="role-opt">
+          <input type="radio" name="role" id="role-beekeeper" value="beekeeper" checked/>
+          <label for="role-beekeeper">
+            <span class="role-icon">&#x1F41D;</span>
+            Beekeeper
+          </label>
+        </div>
+        <div class="role-opt">
+          <input type="radio" name="role" id="role-buyer" value="buyer"/>
+          <label for="role-buyer">
+            <span class="role-icon">&#x1F6D2;</span>
+            Buyer
+          </label>
+        </div>
+        <div class="role-opt">
+          <input type="radio" name="role" id="role-inspector" value="inspector"/>
+          <label for="role-inspector">
+            <span class="role-icon">&#x1F52C;</span>
+            Inspector
+          </label>
+        </div>
+        <div class="role-opt">
+          <input type="radio" name="role" id="role-other" value="other"/>
+          <label for="role-other">
+            <span class="role-icon">&#x1F464;</span>
+            Other
+          </label>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">First Name</label>
+          <div class="field-wrap">
+            <input type="text" class="field-input" id="signup-firstname" placeholder="John"/>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Last Name</label>
+          <div class="field-wrap">
+            <input type="text" class="field-input" id="signup-lastname" placeholder="Mwangi"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Username</label>
+        <div class="field-wrap">
+          <input type="text" class="field-input" id="signup-username" placeholder="your_username"/>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Email Address</label>
+        <div class="field-wrap">
+          <input type="email" class="field-input" id="signup-email" placeholder="you@example.com"/>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Phone Number</label>
+        <div class="field-wrap">
+          <input type="tel" class="field-input" id="signup-phone" placeholder="+255 712 345 678"/>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Region / Location</label>
+        <div class="field-wrap">
+          <input type="text" class="field-input" id="signup-region" placeholder="e.g. Dodoma, Tanzania"/>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Password</label>
+        <div class="field-wrap">
+          <input type="password" class="field-input" id="signup-password"
+                 placeholder="Min. 6 characters"
+                 oninput="checkStrength(this.value)"/>
+          <button class="field-eye" type="button" onclick="togglePwd('signup-password', this)">Show</button>
+        </div>
+        <div class="strength-bars">
+          <div class="strength-bar" id="sb1"></div>
+          <div class="strength-bar" id="sb2"></div>
+          <div class="strength-bar" id="sb3"></div>
+          <div class="strength-bar" id="sb4"></div>
+        </div>
+        <div class="strength-text" id="strength-text">Enter a password</div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Confirm Password</label>
+        <div class="field-wrap">
+          <input type="password" class="field-input" id="signup-password2" placeholder="Repeat password"/>
+          <button class="field-eye" type="button" onclick="togglePwd('signup-password2', this)">Show</button>
+        </div>
+      </div>
+
+      <label class="check-wrap">
+        <input type="checkbox" id="agree-terms"/>
+        <span class="check-text">I agree to the Terms of Service and Privacy Policy.</span>
+      </label>
+
+      <button class="btn-submit" type="button" onclick="handleSignup()">
+        Create My Account
+      </button>
+
+      <div class="switch-prompt">
+        Already have an account?
+        <span class="switch-link" onclick="switchTab('login')">Sign in</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const API = 'http://127.0.0.1:8000/api';
+
+  // ── TAB SWITCH ──────────────────────────────────────────────────────
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(function(b) {
+      b.classList.remove('active');
+    });
+    document.querySelectorAll('.form-panel').forEach(function(p) {
+      p.classList.remove('active');
+    });
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+
+  // ── TOGGLE PASSWORD ─────────────────────────────────────────────────
+  function togglePwd(id, btn) {
+    var inp = document.getElementById(id);
+    if (inp.type === 'password') {
+      inp.type = 'text';
+      btn.textContent = 'Hide';
+    } else {
+      inp.type = 'password';
+      btn.textContent = 'Show';
+    }
+  }
+
+  // ── PASSWORD STRENGTH ───────────────────────────────────────────────
+  function checkStrength(val) {
+    var bars = [
+      document.getElementById('sb1'),
+      document.getElementById('sb2'),
+      document.getElementById('sb3'),
+      document.getElementById('sb4'),
+    ];
+    var txt = document.getElementById('strength-text');
+    bars.forEach(function(b) { b.className = 'strength-bar'; });
+
+    var score = 0;
+    if (val.length >= 6)           score++;
+    if (/[A-Z]/.test(val))         score++;
+    if (/[0-9]/.test(val))         score++;
+    if (/[^A-Za-z0-9]/.test(val))  score++;
+
+    var cls = ['', 'weak', 'weak', 'medium', 'strong'];
+    var lbl = ['Enter a password', 'Weak', 'Weak', 'Medium', 'Strong'];
+    for (var i = 0; i < score; i++) {
+      bars[i].classList.add(cls[score]);
+    }
+    txt.textContent = val.length === 0 ? 'Enter a password' : lbl[score];
+  }
+
+  // ── TOAST ───────────────────────────────────────────────────────────
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3200);
+  }
+
+  // ── LOGIN ───────────────────────────────────────────────────────────
+  function handleLogin() {
+    var username = document.getElementById('login-username').value.trim();
+    var password = document.getElementById('login-password').value;
+
+    if (!username || !password) {
+      showToast('Please fill in all fields');
+      return;
+    }
+
+    showToast('Signing in...');
+
+    fetch(API + '/auth/login/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: username, password: password }),
+    })
+    .then(function(res) { return res.json().then(function(data) {
+      return { ok: res.ok, data: data };
+    }); })
+    .then(function(result) {
+      if (result.ok) {
+        localStorage.setItem('access_token',  result.data.tokens.access);
+        localStorage.setItem('refresh_token', result.data.tokens.refresh);
+        localStorage.setItem('user', JSON.stringify(result.data.user));
+        showToast('Welcome back! Redirecting...');
+        setTimeout(function() {
+          window.location.href = '/dashboard/';
+        }, 1000);
+      } else {
+        showToast(result.data.error || 'Login failed. Check your credentials.');
+      }
+    })
+    .catch(function() {
+      showToast('Cannot connect to server. Is Django running?');
+    });
+  }
+
+  // ── SIGNUP ──────────────────────────────────────────────────────────
+  function handleSignup() {
+    var agreed = document.getElementById('agree-terms').checked;
+    if (!agreed) { showToast('Please accept the Terms of Service'); return; }
+
+    var pwd  = document.getElementById('signup-password').value;
+    var pwd2 = document.getElementById('signup-password2').value;
+    if (pwd !== pwd2) { showToast('Passwords do not match'); return; }
+    if (pwd.length < 6) { showToast('Password must be at least 6 characters'); return; }
+
+    var username = document.getElementById('signup-username').value.trim();
+    if (!username) { showToast('Please enter a username'); return; }
+
+    var role = document.querySelector('input[name="role"]:checked').value;
+
+    var payload = {
+      username:   username,
+      first_name: document.getElementById('signup-firstname').value.trim(),
+      last_name:  document.getElementById('signup-lastname').value.trim(),
+      email:      document.getElementById('signup-email').value.trim(),
+      phone:      document.getElementById('signup-phone').value.trim(),
+      region:     document.getElementById('signup-region').value.trim(),
+      role:       role,
+      password:   pwd,
+      password2:  pwd2,
+    };
+
+    showToast('Creating your account...');
+
+    fetch(API + '/auth/register/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    .then(function(res) { return res.json().then(function(data) {
+      return { ok: res.ok, data: data };
+    }); })
+    .then(function(result) {
+      if (result.ok) {
+        showToast('Account created! Please sign in.');
+        setTimeout(function() { switchTab('login'); }, 1500);
+      } else {
+        var errors = Object.values(result.data).flat().join(' ');
+        showToast(errors || 'Registration failed.');
+      }
+    })
+    .catch(function() {
+      showToast('Cannot connect to server. Is Django running?');
+    });
+  }
+</script>
+</body>
+</html>
