@@ -106,7 +106,7 @@ DATABASES = {
         'NAME': 'honeygrade_db',
         'USER': 'honeygrade_user',
         'PASSWORD': 'honey1234',
-        'HOST': 'localhost',
+        'HOST': 'localhost',#'127.0.0.1',#
         'PORT': '5432',
         'CONN_MAX_AGE': 60,  # ← keeps DB connection alive for 60s
         'OPTIONS': {
@@ -189,3 +189,15 @@ CORS_ALLOW_HEADERS = [
 import os
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+#ii ni kwaajili ya kuzuia API fail 
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME':  timedelta(hours=24),   # 24 hours
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),    # 30 days
+    'ROTATE_REFRESH_TOKENS':  True,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}

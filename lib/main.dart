@@ -2,12 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'services/api_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('access_token');
-  runApp(HoneyGradeApp(isLoggedIn: token != null));
+  bool loggedIn = false;
+
+  if (token != null && token.isNotEmpty) {
+    // Silently try to refresh token
+    loggedIn = await ApiService.refreshToken();
+    if (!loggedIn) {
+      await prefs.clear(); // Token invalid — clear and go to login
+    }
+  }
+
+  runApp(HoneyGradeApp(isLoggedIn: loggedIn));
 }
 
 class HoneyGradeApp extends StatelessWidget {

@@ -18,11 +18,11 @@
   <div class="sidebar-logo">
     <span class="logo-icon">&#x1F36F;</span>
     <div class="logo-name">HoneyGrade</div>
-    <div class="logo-sub">Quality Assessment Platform</div>
+    <div class="logo-sub">Honey Quality Assessment Platform</div>
   </div>
 
   <div class="sidebar-user">
-    <div class="user-avatar" id="userAvatar">?</div>
+    <div class="user-avatar" id="userAvatar">...</div>
     <div>
       <div class="user-name" id="userName">Loading...</div>
       <div class="user-role" id="userRole">...</div>
@@ -322,23 +322,29 @@
         <input type="text" class="form-input" id="historySearch"
                placeholder="Search by sample ID..." style="flex:1; min-width:180px;"
                oninput="filterHistory()"/>
-        <select class="form-input" style="width:150px;" id="historyFilter"
-                onchange="filterHistory()">
-          <option value="">All Results</option>
-          <option value="quality">Quality</option>
-          <option value="intermediate">Intermediate</option>
-          <option value="poor">Poor</option>
-        </select>
+               <select class="form-input" style="width:160px;" id="historyFilter"onchange="filterHistory()">
+               <option value="">All Grades</option>
+               <option value="A">Grade A — Premium</option>
+               <option value="B">Grade B — Good</option>
+               <option value="C">Grade C — Acceptable</option>
+               <option value="D">Grade D — Below Standard</option>
+               </select>
         <button class="btn btn-primary" onclick="exportCSV()">Export CSV</button>
       </div>
       <div class="table-wrap">
         <table class="history-table">
           <thead>
             <tr>
-              <th>Date</th><th>Sample ID</th><th>R avg</th>
-              <th>G avg</th><th>B avg</th><th>Ratio</th><th>Result</th>
-            </tr>
-          </thead>
+             <th>Date</th>
+             <th>Sample ID</th>
+             <th>Grade</th>
+             <th>Pfund (mm)</th>
+             <th>HUE (°)</th>
+             <th>USDA Class</th>
+             <th>R:G Ratio</th>
+             <th>Badge</th>
+          </tr>
+</thead>
           <tbody id="historyBody">
             <tr><td colspan="7" style="text-align:center; padding:20px;
                 color:var(--text-light);">Loading history...</td></tr>

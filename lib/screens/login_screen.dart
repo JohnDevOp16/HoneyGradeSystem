@@ -45,10 +45,24 @@ class _LoginScreenState extends State<LoginScreen> {
           MaterialPageRoute(builder: (_) => const DashboardScreen()),
         );
       } else {
-        _showSnack(data['error'] ?? 'Login failed. Check your credentials.');
+        final error =
+            data['error'] ??
+            data['details'] ??
+            data['no_field_errors']?.toString() ??
+            'Login failed. Check your credentials.';
+        _showSnack(error.toString());
       }
     } catch (e) {
-      _showSnack('Cannot connect to server. Is Django running?');
+      final msg = e.toString();
+      if (msg.contains('timed out') || msg.contains('timedout')) {
+        _showSnack(
+          'Connection timed out. Cannot connect to server. Is Django running?',
+        );
+      } else if (msg.contains('refused') || msg.contains('unreachable')) {
+        _showSnack('cannot reach server. Check Ip: ${ApiService.baseUrl}');
+      } else {
+        _showSnack('Error: $msg');
+      }
     }
 
     setState(() => _loading = false);

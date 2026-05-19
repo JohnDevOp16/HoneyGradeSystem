@@ -110,6 +110,10 @@ class AssessmentSerializer(serializers.ModelSerializer):
                 'rg_ratio':  float(r.rg_ratio),
                 'rb_ratio':  float(r.rb_ratio),
                 'avg_score': float(r.avg_score),
+                'hue':        float(r.hue),
+                'saturation': float(r.saturation),
+                'value':      float(r.value),
+                'pfund_mm':   float(r.pfund_mm),
             }
         except RGBResult.DoesNotExist:
             return None
