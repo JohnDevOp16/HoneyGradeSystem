@@ -25,14 +25,14 @@ SECRET_KEY = 'django-insecure--^ysde8fas6xrq)cmolt0)sz&w-w-wn^gkcij_m=7g7jdl%-#a
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
+"""ALLOWED_HOSTS = [
     'honeygradesystem.com',
     'www.honeygradesystem.com',
     'onrender.com',
     'localhost',
     '127.0.0.1',
-    ]
-
+    ]"""
+ALLOWED_HOSTS = ['*'];
 
 # Application definition
 
@@ -196,10 +196,35 @@ CORS_ALLOW_HEADERS = [
 #MEDIA_URL = '/media/'
 #MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-import os
+"""import os
 DEBUG       = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')"""
+
+
+# --- HII NDIYO MPANGO KANABISHA KWA AJILI YA LOCAL NA RENDER ---
+import os
+
+# 1. Kama upo Render itakuwa False, kama upo kwenye PC yako itakuwa True kiotomatiki!
+DEBUG = 'RENDER' not in os.environ
+
+if DEBUG:
+    # Ukiwa kwenye PC yako (Localhost)
+    ALLOWED_HOSTS = ['*']
+else:
+    # Ukiwa Live Render (Weka domain zako hapa)
+    ALLOWED_HOSTS = [
+        'honeygradesystem.com',
+        'www.honeygradesystem.com',
+        '.onrender.com'
+    ]
+
+# 2. Sehemu ya Static Files (Kuhakikisha CSS na JS hazipotei)
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Hapa chini ndio itafuata ile kodi yako ya SIMPLE_JWT...
 
 
 #ii ni kwaajili ya kuzuia API fail 
