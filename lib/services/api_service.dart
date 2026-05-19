@@ -5,7 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiService {
   // ── BASE URL ───────────────────────────────────────────────────────
   // Change this to your PC IP address
-  static const String baseUrl = 'http://192.168.42.20:8000/api';
+  //static const String baseUrl = 'http://192.168.42.20:8000/api';
+  static const String baseUrl = 'https://honeygrade-api.onrender.com/api';
 
   static final _client = http.Client();
 

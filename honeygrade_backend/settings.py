@@ -186,9 +186,14 @@ CORS_ALLOW_HEADERS = [
 ]
 
 # Media files (uploaded honey images)
+#import os
+#MEDIA_URL = '/media/'
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 import os
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+DEBUG       = os.environ.get('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 #ii ni kwaajili ya kuzuia API fail 
